@@ -1,4 +1,4 @@
-# Election-corruption-in-Africa
+# Election corruption in Africa
 
 This video is my Capstone project of the IBM's advanced Data Science specialization on Coursera. 
 
