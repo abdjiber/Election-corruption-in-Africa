@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# # Author information
+
+# * Author: Djiberou Mahamadou Abdoul Jalil
+# * Education: PhD student in computer science (Machine learning), 2nd year
+# * Email: abdoul_jalil.djiberou_mahamadou@uca.fr
+# * Copyrights: [Djiberou Mahamadou]('https://www.linkedin.com/pulse/imbalanced-datasets-resampling-techniques-abdoul-jalil/)
+# 
+
 # # Packages
 
 # In[2]:
