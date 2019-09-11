@@ -1,6 +1,6 @@
 # Election corruption in Africa
 
-This video is my Capstone project of the IBM's advanced Data Science specialization on Coursera. 
+This project is my Capstone project of the IBM's advanced Data Science specialization on Coursera. 
 
 My project was about the prediction of election corruption in Africa using Machine Learning and Deep Learning.
 I used the round 5 of AfroBarometer survey. The machine learning models I implemented are lightGBM, XGBoost, CatBoost,
