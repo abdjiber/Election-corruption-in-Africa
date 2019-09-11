@@ -1,0 +1,3 @@
+This fold contains a python module used in the project.
+You need to convert the fold to a package by creating a __init__.py empty file so that you import the module from the fold by
+from modules import ...
