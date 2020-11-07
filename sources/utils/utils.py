@@ -10,22 +10,20 @@ import category_encoders
 def clean_data(df, missing_values_threshol=50, show_dropped_cols=True):
     """Helper function for data cleansing"""
     def percent_na(x):
-        pct = 100*(x.isna().sum() / x.shape[0]).round(2)
+        pct = 100 * (x.isna().sum() / x.shape[0]).round(2)
         return pct
 
     df_ = df.loc[:, :'Q105']
-    to_drop_1 = ['COUNTRY', 'COUNTRY.BY.REGION.NO',
-                 'COUNTRY.BY.REGION', 'RESPNO',
-                 'DATEINTR', 'STRTIME', 'THISINT',
-                 'PREVINT', 'ENDTIME', 'LENGTH',
-                 'CALLS'
-                 ]  # Dropping unecessary variables
+    to_drop_1 = [
+        'COUNTRY', 'COUNTRY.BY.REGION.NO', 'COUNTRY.BY.REGION', 'RESPNO',
+        'DATEINTR', 'STRTIME', 'THISINT', 'PREVINT', 'ENDTIME', 'LENGTH',
+        'CALLS'
+    ]  # Dropping unecessary variables
     to_drop_2 = [col for col in df.columns if 'NOCALL' in col]
     drop_cols = to_drop_1 + to_drop_2
     df_ = df_.drop(drop_cols, axis=1)
-    dropped_cols = pd.DataFrame(columns=['Variables',
-                                         'Percentage missing data'
-                                         ])
+    dropped_cols = pd.DataFrame(
+        columns=['Variables', 'Percentage missing data'])
     n = 0  # Attributes to drop iterator
     for col in list(df_):
         pmissing = percent_na(df_[col])
@@ -84,11 +82,11 @@ def get_most_corruption_type_by_country(df_bribes, countries):
     - School placement,
     - Election incentives
     """
-    df_bribes.columns = ['Document or permit', 'water or sanitation services',
-                         'Treatment at local health clinic or hospital',
-                         'Avoid problem with police', 'School placement',
-                         'Election incentives'
-                         ]
+    df_bribes.columns = [
+        'Document or permit', 'water or sanitation services',
+        'Treatment at local health clinic or hospital',
+        'Avoid problem with police', 'School placement', 'Election incentives'
+    ]
     most_corruption_type = []
     for country in countries.unique():
         max_ = 0.0
@@ -97,15 +95,15 @@ def get_most_corruption_type_by_country(df_bribes, countries):
             counts = df_bribes.loc[countries == country, col].value_counts()
             if 'At least once' in counts.index:
                 n_at_least_once = counts['At least once']
-                pertcent = 100*np.round(n_at_least_once/counts.sum(), 3)
+                pertcent = 100 * np.round(n_at_least_once / counts.sum(), 3)
                 if pertcent > max_:
                     max_ = pertcent
                     type_ = col
-        most_corruption_type.append({'country': country,
-                                     'type': type_,
-                                     'percentage': max_
-                                     }
-                                    )
+        most_corruption_type.append({
+            'country': country,
+            'type': type_,
+            'percentage': max_
+        })
     return most_corruption_type
 
 
@@ -138,14 +136,8 @@ def split(df, target, test_size=0.3):
     """Helper function for splitting the data
        into a train and test sets giving a test set size
     """
-    x_train, x_val, y_train, y_val = (model_selection
-                                      .train_test_split(df,
-                                                        target,
-                                                        test_size=test_size,
-                                                        shuffle=True,
-                                                        random_state=10
-                                                        )
-                                      )
+    x_train, x_val, y_train, y_val = (model_selection.train_test_split(
+        df, target, test_size=test_size, shuffle=True, random_state=10))
     return x_train, x_val, y_train, y_val
 
 
@@ -156,10 +148,8 @@ def initialize_attributes(self_, x_train, x_val, y_train, y_val):
     self_.y_val = y_val
 
 
-def get_semi_supervised_data(x_train, x_val,
-                             y_train, y_val,
-                             preds_prob, threshold
-                             ):
+def get_semi_supervised_data(x_train, x_val, y_train, y_val, preds_prob,
+                             threshold):
     """
     Helper function for creating data for semi-supervised learning.
     The process is the following:
@@ -184,7 +174,8 @@ def CV(model, train, target, n_splits=5):
         y_tr, y_te = target.iloc[tr_idx], target.iloc[te_idx]
         model.fit(x_tr, y_tr)
         tmp = model.predict_proba(x_te)[:, 1]
-        print('Fold {0} auc {1}'.format(i + 1, metrics.roc_auc_score(y_te, tmp)))
+        print('Fold {0} auc {1}'.format(i + 1,
+                                        metrics.roc_auc_score(y_te, tmp)))
         oof.iloc[te_idx] = tmp
     time_end = time.time()
     print('Time compexity {}'.format(time_end - time_start))

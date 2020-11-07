@@ -4,11 +4,8 @@ import scoring
 
 class Model:
     """Class for performing supervised and semi-supervised learning"""
-
     def __init__(self, model, x_train, x_val, y_train, y_val):
-        utils.initialize_attributes(self, x_train,
-                                    x_val, y_train, y_val
-                                    )
+        utils.initialize_attributes(self, x_train, x_val, y_train, y_val)
         self.model = model
         self.preds = []
         self.preds_prob = []
@@ -31,20 +28,13 @@ class Model:
 
     def supervised_learning(self):
         self.fit_predict()
-        acc, recall, auc = scoring.scores(self.y_val,
-                                          self.preds,
-                                          self.preds_prob
-                                          )
+        acc, recall, auc = scoring.scores(self.y_val, self.preds,
+                                          self.preds_prob)
         return self.preds_prob, acc, recall, auc
 
     def semi_supervised_learning(self, threshold=0.9):
         self.x_train, self.y_train = utils.get_semi_supervised_data(
-                                          self.x_train,
-                                          self.x_val,
-                                          self.y_train,
-                                          self.y_val,
-                                          self.preds_prob,
-                                          threshold
-                                          )
+            self.x_train, self.x_val, self.y_train, self.y_val,
+            self.preds_prob, threshold)
         preds_prob, acc, recall, auc = self.supervised_learning()
         return preds_prob, acc, recall, auc

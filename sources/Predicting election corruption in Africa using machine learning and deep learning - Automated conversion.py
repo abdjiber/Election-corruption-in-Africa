@@ -39,14 +39,15 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 warnings.filterwarnings('ignore')  # Ignoring the warnings
 
 plt.style.use('dark_background')
-params = {'legend.fontsize': 'large',
-          'figure.figsize': (18, 5),
-          'font.size': 12,
-          'xtick.labelsize': 'large',
-          'ytick.labelsize': 'large',
-          'axes.titlesize' :'large',
-          'axes.grid': False
-          }
+params = {
+    'legend.fontsize': 'large',
+    'figure.figsize': (18, 5),
+    'font.size': 12,
+    'xtick.labelsize': 'large',
+    'ytick.labelsize': 'large',
+    'axes.titlesize': 'large',
+    'axes.grid': False
+}
 rcParams.update(params)
 
 np.random.seed(42)  # Setting a random seed for reproductibility
@@ -94,18 +95,15 @@ education_label = ['Education']
 plotting.visualize([countries],
                    countries_label,
                    'Countries distribution',
-                   direction='V'
-                   )
+                   direction='V')
 
 # %% [markdown]
 # From the figure above, one could note that there are two groups of countries that have approximately the same repartition. The one with a ratio of 5% (Kenya, South Africa, Ghana, Tanzania, Mozambique, Uganda, Nigeria and Malawi) and the other countries having a ratio of 2%.
 
 # %%
 # Visualization of Country age groups and sex distribution
-plotting.visualize(age_groups_and_sex,
-                age_groups_sex_labels,
-                'Age groups, Sex distribution'
-                )
+plotting.visualize(age_groups_and_sex, age_groups_sex_labels,
+                   'Age groups, Sex distribution')
 
 # %% [markdown]
 # From the figure above, one could see that the sex is equaly distributed contrary to the age groups in which the age group 25-35 is the most represented and >76 the least.
@@ -140,16 +138,15 @@ plotting.visualize([education], education_label, 'Education distribution')
     and encode the responses
 """
 df_bribes = df.loc[:, 'Q61A':'Q61F'].copy()
-df_bribes = (df_bribes.fillna(df_bribes.mode().loc[0])
-                     .replace(constants.RESPONSES_EXPERIENCE_WITH_BRIBERIES,                                   value=None)
-              )
-df_bribes = df_bribes.replace({
-                                'Once or twice': 'At least once',
-                                'A few times': 'At least once',
-                                'Often': 'At least once'
-                                }, value=None
-                               )
-
+df_bribes = (df_bribes.fillna(df_bribes.mode().loc[0]).replace(
+    constants.RESPONSES_EXPERIENCE_WITH_BRIBERIES, value=None))
+df_bribes = df_bribes.replace(
+    {
+        'Once or twice': 'At least once',
+        'A few times': 'At least once',
+        'Often': 'At least once'
+    },
+    value=None)
 
 # %%
 """Getting a data frame containing the most
@@ -157,13 +154,13 @@ frequent type of bribe by country
 """
 types = utils.get_most_corruption_type_by_country(df_bribes, countries)
 df_most_corruption_type_by_country = pd.DataFrame(types)
-encode_types = {'Avoid problem with police': 0,
-                'Document or permit': 1,
-                'Election incentives': 2,
-                'Treatment at local health clinic or hospital': 3
-                }
+encode_types = {
+    'Avoid problem with police': 0,
+    'Document or permit': 1,
+    'Election incentives': 2,
+    'Treatment at local health clinic or hospital': 3
+}
 df_most_corruption_type_by_country.type.replace(encode_types, inplace=True)
-
 
 # %%
 # Uncomment to plot the choropleths
@@ -187,9 +184,11 @@ utils.plot_choropleth(df=df_most_corruption_type_by_country,
                 )
 """
 
-
 # %%
-get_ipython().run_cell_magic('html', '', "Please note that the two choropleth figures will not be displayed as output once the notebook in imported, so I'll put them manually.\n\n<img src='https://raw.githubusercontent.com/abdjiber/Election-corruption-in-Africa/master/img/figures/choropleth_types_bribes.png'>\n\n<img src='https://raw.githubusercontent.com/abdjiber/Election-corruption-in-Africa/master/img/figures/choropleth_types_bribes_frequencies.png.png'>")
+get_ipython().run_cell_magic(
+    'html', '',
+    "Please note that the two choropleth figures will not be displayed as output once the notebook in imported, so I'll put them manually.\n\n<img src='https://raw.githubusercontent.com/abdjiber/Election-corruption-in-Africa/master/img/figures/choropleth_types_bribes.png'>\n\n<img src='https://raw.githubusercontent.com/abdjiber/Election-corruption-in-Africa/master/img/figures/choropleth_types_bribes_frequencies.png.png'>"
+)
 
 # %% [markdown]
 # ## data cleansing part 2 : Preparing data for modeling
@@ -199,7 +198,6 @@ get_ipython().run_cell_magic('html', '', "Please note that the two choropleth fi
 # %%
 target = df['Q61F']
 df = df.fillna(df.mode().loc[0])  # Filling missing
-
 """
 Getting a mask of target values different of -1,
 998 and 9 which correspond respectively to missing,
@@ -210,11 +208,9 @@ target = target[mask]
 df = df.loc[target.index]
 del df['Q61F']  # Deleting the target variable from the data.
 
-
 # %%
 target_2_classes = target.replace({0: 0, 1: 1, 2: 1, 3: 1})
 target_2_classes.value_counts() / target.shape[0]
-
 
 # %%
 """Scaling the data to the range [0, 1]"""
@@ -238,10 +234,13 @@ components = Pca.components_.T
 columns = df.columns
 explained_variance_ratio = Pca.explained_variance_ratio_.round(2)
 
-
 # %%
-plotting.plot_pca(pca, target_2_classes, explained_variance_ratio,
-                  components, columns, figName='Principal components analysis')
+plotting.plot_pca(pca,
+                  target_2_classes,
+                  explained_variance_ratio,
+                  components,
+                  columns,
+                  figName='Principal components analysis')
 
 # %% [markdown]
 # ### K-means
@@ -268,9 +267,12 @@ plotting.elbow(pca)
 kmeans = cluster.KMeans(n_jobs=-1, n_clusters=4)
 pred_labs = kmeans.fit_predict(pca)
 
-
 # %%
-plotting.plot_2D(data=pca, labels=pred_labs, title='Data projection with K-means labels', components=components, columns=columns)
+plotting.plot_2D(data=pca,
+                 labels=pred_labs,
+                 title='Data projection with K-means labels',
+                 components=components,
+                 columns=columns)
 
 # %% [markdown]
 # We can note that the clusters have different size. C2 has the biggest one, C4 and 3 have approximately the same size and
@@ -282,44 +284,58 @@ plotting.plot_2D(data=pca, labels=pred_labs, title='Data projection with K-means
 # * COUNTRY_ALPHA: Countries
 
 # %%
-plotting.compare_clusters(df, pred_labs, {'Q101':'Cluster comparison on sex'})
-
+plotting.compare_clusters(df, pred_labs, {'Q101': 'Cluster comparison on sex'})
 
 # %%
 plotting.compare_clusters(df, pred_labs, {'Q1': 'Cluster comparison on age'})
 
+# %%
+plotting.compare_clusters(df, pred_labs,
+                          {'Q97': 'Cluster comparison on education'})
 
 # %%
-plotting.compare_clusters(df, pred_labs, {'Q97': 'Cluster comparison on education'})
-
-
-# %%
-plotting.compare_clusters(df, pred_labs, {'COUNTRY_ALPHA': 'Cluster comparison on countries'})
-
+plotting.compare_clusters(df, pred_labs,
+                          {'COUNTRY_ALPHA': 'Cluster comparison on countries'})
 
 # %%
-plotting.compare_clusters(target, pred_labs, {'Q61F':'Cluster comparison on receive bribe for election'})
-
-
-# %%
-plotting.compare_clusters(df, pred_labs, {'Q61A': 'Cluster comparison on pay                                         bribe for document or permit corruption'})
-
+plotting.compare_clusters(
+    target, pred_labs,
+    {'Q61F': 'Cluster comparison on receive bribe for election'})
 
 # %%
-plotting.compare_clusters(df, pred_labs, {'Q61B': 'Cluster comparison on pay bribe for                                      water or sanitation services'})
-
-
-# %%
-plotting.compare_clusters(df, pred_labs, {'Q61C': 'Cluster comparision on pay                           bribe for treatment at local health clinic or hospital'})
-
-
-# %%
-plotting.compare_clusters(df, pred_labs, {'Q61D': 'Cluster comparision on pay                                               bribe to avoid problem with police'})
-
+plotting.compare_clusters(
+    df, pred_labs, {
+        'Q61A':
+        'Cluster comparison on pay                                         bribe for document or permit corruption'
+    })
 
 # %%
-plotting.compare_clusters(df, pred_labs, {'Q61E': 'Cluster comparision on pay                                               bribe for school placement'})
+plotting.compare_clusters(
+    df, pred_labs, {
+        'Q61B':
+        'Cluster comparison on pay bribe for                                      water or sanitation services'
+    })
 
+# %%
+plotting.compare_clusters(
+    df, pred_labs, {
+        'Q61C':
+        'Cluster comparision on pay                           bribe for treatment at local health clinic or hospital'
+    })
+
+# %%
+plotting.compare_clusters(
+    df, pred_labs, {
+        'Q61D':
+        'Cluster comparision on pay                                               bribe to avoid problem with police'
+    })
+
+# %%
+plotting.compare_clusters(
+    df, pred_labs, {
+        'Q61E':
+        'Cluster comparision on pay                                               bribe for school placement'
+    })
 
 # %%
 plotting.plot_feature_importances(df, target_2_classes, pred_labs)
@@ -348,7 +364,6 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 df_count_encode = utils.count_encoding(df.copy())
 df_targ_encoded = utils.target_encode(df_count_encode, target_2_classes)
 
-
 # %%
 df_targ_encoded.head()
 
@@ -357,7 +372,6 @@ df_targ_encoded.head()
 
 # %%
 x_train, x_val, y_train, y_val = utils.split(df_targ_encoded, target_2_classes)
-
 
 # %%
 models_common_params_GBM = dict(random_state=constants.RANDOM_STATE, verbose=0)
@@ -380,24 +394,26 @@ clf_cat = cat.CatBoostClassifier(**models_common_params_GBM)
 nn = neural_nets.NeuralNets(x_train, x_val, y_train, y_val)
 clf_int = ExplainableBoostingClassifier(random_state=constants.RANDOM_STATE)
 clf_hist = HistGradientBoostingClassifier(random_state=constants.RANDOM_STATE)
-list_models = {'LightGBM': clf_lgb, 'XGBoost': clf_xgb,
-               'CatBoost': clf_cat, 'Neural Nets': nn,
-               'Explainable Boosting': clf_int,
-               'Hist Gradient boosting': clf_hist
-               }
-
+list_models = {
+    'LightGBM': clf_lgb,
+    'XGBoost': clf_xgb,
+    'CatBoost': clf_cat,
+    'Neural Nets': nn,
+    'Explainable Boosting': clf_int,
+    'Hist Gradient boosting': clf_hist
+}
 
 # %%
 # Defining an instance of the classification class
-classifiers = classification.Classification(list_models,
-                                            x_train, x_val, y_train, y_val)
+classifiers = classification.Classification(list_models, x_train, x_val,
+                                            y_train, y_val)
 
 # %% [markdown]
 # ## Supervised learning
 
 # %%
-df_scores_supLearning, prediction_supLearning = classifiers.run_supervised_learning()
-
+df_scores_supLearning, prediction_supLearning = classifiers.run_supervised_learning(
+)
 
 # %%
 df_scores_supLearning
@@ -406,18 +422,14 @@ df_scores_supLearning
 # ## Semi supervised learning
 
 # %%
-df_scores_supLearning, prediction_supLearning = classifiers.run_semi_supervised_learning()
-
+df_scores_supLearning, prediction_supLearning = classifiers.run_semi_supervised_learning(
+)
 
 # %%
 df_scores_supLearning
 
+# %%
+model, oof, = utils.CV(clf_lgb, df_targ_encoded, target_2_classes)
 
 # %%
-model, oof,  = utils.CV(clf_lgb, df_targ_encoded, target_2_classes)
-
-
-# %%
-scoring.scores(target_2_classes,  np.where(oof < 0.5, 0, 1), oof)
-
-
+scoring.scores(target_2_classes, np.where(oof < 0.5, 0, 1), oof)
